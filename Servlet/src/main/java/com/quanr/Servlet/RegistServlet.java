@@ -29,14 +29,14 @@ public class RegistServlet extends HttpServlet {
         user.setNickname(request.getParameter("nickname"));
         try {
             if (CheckUser.regist(user) == CheckUser.FALSE) {
-                LOGGER.info("注册失败");
+                LOGGER.info("失败");
                 request.getRequestDispatcher("regist.jsp").forward(request, response);
             } else {
                 LOGGER.info("{}注册成功",user.getUsername());// 注册 成功
                 response.sendRedirect("login.jsp");
             }
         } catch (Exception e) {
-            LOGGER.warn("添加用户失败");
+            LOGGER.warn("添加失败");
         }
     }
 

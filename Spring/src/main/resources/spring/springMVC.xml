@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	   http://www.springframework.org/schema/mvc
+	   http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	   http://www.springframework.org/schema/context
+	   http://www.springframework.org/schema/context/spring-context.xsd"
+       default-lazy-init="true">
+    <!--本配置文件是为mvcDispatcher的DispatcherServlet使用-->
+
+
+    <!--启用Spring基于Annotation的DI，激活@Required @Autowired@PostConstruct
+    @PreDestory and @Resource等注解-->
+    <context:annotation-config/>
+
+    <!--DispatcherServlet上下文，只管理@Controller类型的bean，忽略其他类型的bean，比如@Service-->
+    <context:component-scan base-package="com.qunar.fresh.web"/>
+    <!--<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>-->
+    <!--</context:component-scan>-->
+
+    <!-- 自动ClassName 映射 如：ModifyControl 映射为 /modify -->
+    <bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"></bean>
+
+
+    <!--<mvc:default-servlet-handler/>   HandlerMapping ,无需配置，默认启动-->
+
+
+    <!--获取静态资源，比如resources下的资源文件,css,js等-->
+    <!--<mvc:resources mapping="/resources/**" location=""/>-->
+
+    <!--配置ViewResolver，可以多个ViewResolver 使用order排序，InternalResourceViewResolver放在最后-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--<property name="viewClass" value="org.springframework.web.servlet.view.jstlView"/>-->
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--配置拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 需拦截的地址 -->
+            <mvc:mapping path="/*"/>
+            <!--排除拦截的地址，welcome.jsp 欢迎界面-->
+            <mvc:exclude-mapping path="/index.jsp"/>
+            <bean class="com.qunar.fresh.extention.interceptors.RequestInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--扩充注解驱动，可以将请求参数绑定道控制器参数-->
+    <mvc:annotation-driven conversion-service="dateConverter"/>
+    <!--配置String -> Date类型转换-->
+    <bean id="dateConverter" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="com.qunar.fresh.extention.converter.DataConverter"/>
+            </set>
+        </property>
+    </bean>
+
+</beans>
