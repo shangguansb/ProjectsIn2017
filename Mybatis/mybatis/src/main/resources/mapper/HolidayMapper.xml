@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qunar.fresh.dao.HolidayDao">
+
+    <resultMap id="HolidayModel" type="com.qunar.fresh.model.HolidayModel">
+        <id column="id" property="id"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="sick_num" property="sickNum"/>
+        <result column="annual_num" property="annualNum"/>
+    </resultMap>
+
+    <sql id="selectFields">
+        id,
+        staff_id,
+        sick_num,
+        annual_num
+    </sql>
+
+    <update id="updateHolidayById" parameterType="com.qunar.fresh.model.HolidayModel">
+        UPDATE holiday
+        <set>
+            <if test="sickNum != null">
+                sick_num = #{sickNum},
+            </if>
+            <if test="annualNum != null">
+                annual_num = #{annualNum},
+            </if>
+        </set>
+        WHERE staff_id = #{staffId}
+    </update>
+
+
+    <select id="selectHolidayDayLessThanNum" resultType="int">
+        SELECT
+        holiday.staff_id
+        FROM
+        holiday
+        LEFT JOIN leave_holiday  ON holiday.staff_id = leave_holiday.staff_id
+        AND leave_holiday.type = #{type}
+        GROUP BY
+        holiday.staff_id
+        HAVING SUM(IFNULL(leave_holiday.day_num, 0)) &lt; #{num}
+    </select>
+
+    <select id="selectHoliday" resultMap="HolidayModel">
+        SELECT
+        <include refid="selectFields"/>
+        FROM holiday WHERE staff_id = #{StaffId}
+
+    </select>
+
+
+    <insert id="insertHoliday" parameterType="com.qunar.fresh.model.HolidayModel" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO holiday (staff_id,sick_num,annual_num) VALUES(#{staffId},#{sickNum},#{annualNum})
+    </insert>
+
+    <insert id="batchInsertHoliday" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO holiday (staff_id,sick_num,annual_num) VALUES
+        <foreach collection="list" item="index" separator=",">
+            (#{index.staffId},#{index.sickNum},#{index.annualNum})
+        </foreach>
+    </insert>
+
+    <delete id="batchDeleteHoliday" parameterType="java.util.List">
+        DELETE FROM holiday
+        WHERE staff_id in
+        <foreach collection="list" item="index" open="(" close=")" separator=",">
+            #{index}
+        </foreach>
+    </delete>
+
+    <update id="updateAnnualNum">
+        UPDATE holiday
+        SET annual_num = annual_num - #{num}
+        WHERE staff_id = #{staffId}
+        AND annual_num - #{num} > 0;
+    </update>
+</mapper>

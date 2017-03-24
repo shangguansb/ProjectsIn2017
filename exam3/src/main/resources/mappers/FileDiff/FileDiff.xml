@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qunar.fresh2017.dao.FileDiffDao">
+    <sql id="selectFields">
+        id, diffTime, sourceFile ,targetFile, fileDiff
+    </sql>
+    <insert id="saveFileDiff" parameterType="FileDiff">
+        INSERT INTO fileDiff(diffTime, sourceFile, targetFile, fileDiff) VALUES
+        (now(), #{sourceFile}, #{targetFile}, #{fileDiff})
+    </insert>
+    <select id="querySum" resultType="int">
+        SELECT COUNT(*) FROM fileDiff
+    </select>
+    <select id="queryFileDiff" resultType="FileDiff">
+        SELECT
+        <include refid="selectFields"/>
+        FROM fileDiff
+        ORDER BY id DESC
+    </select>
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM fileDiff WHERE id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--//顶级标签，指定mapper的权限定名-->
+<mapper namespace="com.qunar.fresh.dao.EmployeeDao">
+    <resultMap id="EmployeeModel" type="com.qunar.fresh.model.EmployeeModel">
+        <id column="id" property="id"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="name" property="name"/>
+        <result column="mobile" property="mobile"/>
+        <result column="area" property="area"/>
+        <result column="gender" property="gender"/>
+        <result column="is_valid" property="isValid"/>
+    </resultMap>
+    <sql id="selectFields">
+        id,
+        staff_id,
+        name,
+        mobile,
+        area,
+        gender,
+        is_valid
+    </sql>
+
+    <insert id="saveEmployee" parameterType="com.qunar.fresh.model.EmployeeModel">
+        insert into mybatis.employee (id,
+        staff_id, name,
+        mobile, area, gender,
+        is_valid)
+        VALUE
+        (#{id,jdbcType=BIGINT}, #{staffId,jdbcType=BIGINT},
+        #{name,jdbcType=VARCHAR},
+        #{mobile,jdbcType=VARCHAR},
+        #{area,jdbcType=VARCHAR}, #{gender},
+        #{isValid})
+    </insert>
+
+
+    <insert id="batchInsertEmployee" parameterType="java.util.List">
+        insert into employee
+        (staff_id,name,mobile,area,gender) values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.staffId},
+            #{item.name},
+            #{item.mobile},
+            #{item.area},
+            #{item.gender}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectEmployeeById" parameterType="int" resultMap="EmployeeModel">
+        SELECT <include refid="selectFields"/>
+        FROM  employee
+        where staff_id = #{id}
+    </select>
+
+
+    <select id="selectEmployeeByName" parameterType="string" resultMap="EmployeeModel">
+        SELECT <include refid="selectFields"/>
+        FROM employee
+        WHERE name LIKE #{name}
+    </select>
+
+
+    <select id="selectEmployeeByState" parameterType="int" resultMap="EmployeeModel">
+        SELECT <include refid="selectFields"/>
+        FROM employee
+        WHERE is_valid = #{type}
+    </select>
+
+    <select id="batchSelectEmployee" resultMap="EmployeeModel">
+        SELECT <include refid="selectFields"/>
+        FROM employee
+        ORDER BY staff_id
+        limit #{offset},#{size}
+    </select>
+
+    <!--批量删除信息-->
+    <delete id="batchDeleteEmployee" parameterType="java.util.List">
+        DELETE FROM employee
+        WHERE staff_id IN
+        <foreach collection="list" item="index" open="(" close=")" separator=",">
+            #{index}
+        </foreach>
+    </delete>
+
+</mapper>

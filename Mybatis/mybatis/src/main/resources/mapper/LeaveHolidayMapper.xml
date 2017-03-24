@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qunar.fresh.dao.LeaveHolidayDao">
+
+
+    <resultMap id="LeaveHolidayModel" type="com.qunar.fresh.model.LeaveHolidayModel">
+        <id column="id" property="id"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="day_num" property="dayNum"/>
+        <result column="type" property="type"/>
+        <result column="area" property="area"/>
+    </resultMap>
+
+    <sql id="selectFields">
+        id,
+        staff_id,
+        start_date ,
+        end_date ,
+        day_num ,
+        type,
+        area
+    </sql>
+
+
+    <select id="selectLeaveHolidayById" parameterType="int" resultMap="LeaveHolidayModel">
+        SELECT
+        <include refid="selectFields"/>
+        FROM leave_holiday
+        <where>
+            staff_id = #{staffId}
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <delete id="batchDeleteLeaveHoliday" parameterType="java.util.List">
+        DELETE FROM leave_holiday
+        WHERE staff_id in
+        <foreach collection="list" item="index" open="(" close=")" separator=",">
+            #{index}
+        </foreach>
+    </delete>
+
+
+    <insert id="insertLeaveHoliday" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.qunar.fresh.model.LeaveHolidayModel">
+        INSERT INTO leave_holiday
+        (
+        <include refid="selectFields"/>
+        )
+        VALUES (#{id},#{staffId},#{startDate},#{endDate},#{dayNum},#{type},#{area})
+    </insert>
+</mapper>
